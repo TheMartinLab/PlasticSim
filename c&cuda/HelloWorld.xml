@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+	<project name="Hello World" default="Hello" basedir=".">
+		<property name="HelloText" value="Hello"/>
+		<property name="WorldText" value="World"/>
+		<target name = "Hello">
+			<echo>${HelloText}</echo>
+		</target>
+		<target name = "World">
+			<echo>${WorldText}</echo>
+		</target>
+	</project>

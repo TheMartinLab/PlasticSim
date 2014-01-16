@@ -75,6 +75,7 @@ public class CalculateDiffraction {
 				if(!areAtomsInCartesianCoordinates && (x > maxCoordVal || y > maxCoordVal || z > maxCoordVal)) {
 					areAtomsInCartesianCoordinates = true;
 					atoms = null;
+					mfis.close();
 					return readInXYZLattice();
 				}
 			}

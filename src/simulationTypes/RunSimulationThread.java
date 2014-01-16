@@ -964,9 +964,11 @@ public class RunSimulationThread implements Observer {
 		simul.zShift = 2;
 		double maxShift = 4;
 		double shiftStep = 2*simul.qStep;
-		double startShift = shiftStep;
+		double startShift = 0.6;
 		
-		for(double shift = startShift; shift < maxShift; shift+= shiftStep) {
+		int numToCalculate = (int) Math.rint((maxShift - startShift) / shiftStep);
+		for(int idx = 0; idx < numToCalculate; idx++) {
+			double shift = idx * shiftStep + startShift; 
 			shift = Math.rint(shift*100)/100.;
 			simul.zShift = shift;
 			int step = 1;

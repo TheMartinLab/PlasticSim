@@ -92,10 +92,10 @@ public class DiffractionTools {
 	 * @return
 	 */
 	public static JPixel[] initPixels_old(JVector[][] vFamily, double qxMax, double qyMax, 
-			double qStep, int[] elemTypes, double wavelength) {
+			double qStep, int[] elemTypes, double wavelength, double zShift) {
 		int numPixels = 0;
 		int pixIdx;
-		JVector Q, vx, vy;
+		JVector Q, vx, vy, vz;
 		JComplex sf;
 
 		for(int i = 0; i < vFamily.length; i++) {
@@ -117,10 +117,12 @@ public class DiffractionTools {
 			for(int i = 0; i < vFamily.length; i++) {
 				vx = vFamily[i][1];
 				vy = vFamily[i][2];
+				vz = vFamily[i][0];
 				HashMap<Double, JComplex> sfMap = csf.buildHashMap(Math.max(qxMax, qyMax), qStep, wavelength, elemTypes[elemTypeIdx], vx, vy);
 				for(double qy = -qyMax; qy <= qyMax; qy += qStep) {
 					for(double qx = -qxMax; qx <= qxMax; qx += qStep) {
 						Q = JVector.add(JVector.multiply(vx, qx), JVector.multiply(vy, qy));
+						Q = JVector.add(Q, JVector.multiply(vz, zShift));
 						sf = sfMap.get(Q.length());
 						
 						if(sf == null) {

@@ -445,6 +445,7 @@ public class RunSimulationThread implements Observer {
 	private double qMaxX;
 	private double qMaxY;
 	private double qStep;
+	private double zShift;
 	private JPixel[] pixels;
 	private int[] elemTypes;
 	private double wavelength;
@@ -463,7 +464,7 @@ public class RunSimulationThread implements Observer {
 			qStep = 1. / ((double) firstLattice.getNumUnitCellsPerAxis());
 			firstLattice = null;
 		}
-		pixels = DiffractionTools.initPixels_old(axes, qMaxX, qMaxY, qStep, elemTypes, wavelength);
+		pixels = DiffractionTools.initPixels_old(axes, qMaxX, qMaxY, qStep, elemTypes, wavelength, zShift);
 	}
 	private void setCalcDiffractionParams(CalculateDiffraction calc) {
 		calc.setDiffCalcType(diffCalcType);
@@ -477,8 +478,10 @@ public class RunSimulationThread implements Observer {
 		calc.setWavelength(wavelength);
 		calc.setXyI(xyI);
 		calc.setareAtomsInCartesianCoordinates(areAtomsInCartesianCoordinates);
-		File diffractionOutputFolder = new File(inputFolder.getAbsoluteFile().getParentFile() + File.separator + "diffraction");
-		diffractionOutputFolder.mkdirs();
+		if(diffractionOutputFolder == null) {
+			File diffractionOutputFolder = new File(inputFolder.getAbsoluteFile().getParentFile() + File.separator + "diffraction");
+			diffractionOutputFolder.mkdirs();
+		}
 		calc.setDiffractionOutputFolder(diffractionOutputFolder);
 	}
 	/*private void calcDiffraction(int i) throws ClassNotFoundException, IOException {
@@ -904,9 +907,9 @@ public class RunSimulationThread implements Observer {
 		String root = drive + "Simulation" + File.separator + "Eric" + File.separator + "CBr4";
 //		String root = "D:\\Documents referenced in lab notebooks\\";
 		String user = "Dill";
-		int pageNumber = 146;
+		int pageNumber = 149;
 		int notebookNumber = 4;
-		String index = "a";
+		String index = "b";
 		
 		File outputFolder = new File(root + File.separator + user + "-" + notebookNumber + File.separator + pageNumber);
 		outputFolder.mkdirs();
@@ -952,42 +955,53 @@ public class RunSimulationThread implements Observer {
 //		simul.outputAllTo = new File("Z:\\Simulation\\Eric\\CBr4\\Diffraction patterns will be automatically calculated in this folder");
 
 		/** UNCOMMENT THIS BLOCK TO CALCULATE DIFFRACTION PATTERNS IN A SPECIFIC SET OF FOLDERS */
-//		projections.add(Projections._2d_001);
-//		
-//		simul.projections = projections;
-//		simul.qMaxX = 20;
-//		simul.qStep = 1. / ((double) simul.numUnitCellsPerAxis);
-//		simul.a = 	1;
-//		
-//		int step = 5;
-//		inputFolder = new File("Z:\\Simulation\\Eric\\CBr4\\Dill-4\\131\\simulOut");
-//		inputFolders.add(inputFolder);
-//		simul.outputRoot = inputFolder.getParentFile();
-//		simul.outputFolder = new File(simul.outputRoot + File.separator + "diffraction");
-//		startModifyIdx = 0;
-//		for(File inFolder : inputFolders) {
-//			simul.inputFolder = inFolder;
-//			finishModifyIdx = new File(inFolder + File.separator + "xyz").listFiles().length;
-//			for(int j = startModifyIdx; j < finishModifyIdx; j+= step) {
-//				simul.startModifyIdx = j;
-//				simul.finishModifyIdx = j+step;
-//				runDiffractionCalc(simul, SimulationToRun.CALC_DIFFRACTION_XYZ);
-//			}
-//		}
+		projections.add(Projections._2d_001);
+		
+		simul.projections = projections;
+		simul.qMaxX = 10;
+		simul.qStep = 1. / 10.;
+		simul.a = 	1;
+		simul.zShift = 2;
+		double maxShift = 4;
+		double shiftStep = 2*simul.qStep;
+		double startShift = shiftStep;
+		
+		for(double shift = startShift; shift < maxShift; shift+= shiftStep) {
+			shift = Math.rint(shift*100)/100.;
+			simul.zShift = shift;
+			int step = 1;
+			inputFolder = new File("D:\\Documents referenced in lab notebooks\\Dill-4\\149\\b");
+			inputFolders.add(inputFolder);
+			simul.diffractionOutputFolder = new File(inputFolder.getParentFile() + File.separator + "diffraction -- shifted up " + shift);
+			simul.outputFolder = simul.diffractionOutputFolder;
+			
+			simul.diffractionOutputFolder.mkdirs();
+			simul.outputFolder.mkdirs();
+			startModifyIdx = 0;
+			for(File inFolder : inputFolders) {
+				simul.inputFolder = inFolder;
+				finishModifyIdx = new File(inFolder + File.separator + "xyz").listFiles().length;
+				for(int j = startModifyIdx; j < finishModifyIdx; j+= step) {
+					simul.startModifyIdx = j;
+					simul.finishModifyIdx = j+step;
+					runDiffractionCalc(simul, SimulationToRun.CALC_DIFFRACTION_XYZ);
+				}
+			}
+		}
 
 		/** UNCOMMENT THIS BLOCK TO CALCULATE DIFFRACTION PATTERNS AS OUTPUT FILES ARE DUMPED INTO A FOLDER */
 		
-		File folderToWatch = simul.outputAllTo;
-		folderToWatch = new File("D:\\Documents referenced in lab notebooks\\Dill-4\\146\\simulOut");
-		simul.areAtomsInCartesianCoordinates = false;
-		simul.a = 1;
-		simul.qMaxX = 20;
-		simul.projections = projections;
-		simul.qStep = 1. / ((double) simul.numUnitCellsPerAxis);
-		simul.outputRoot = folderToWatch.getParentFile();
-		simul.outputFolder = new File(simul.outputRoot + File.separator + "diffraction");
-		WatchForNewFile wf = new WatchForNewFile(folderToWatch);
-		wf.addObserver( simul);
+//		File folderToWatch = simul.outputAllTo;
+//		folderToWatch = new File("D:\\Documents referenced in lab notebooks\\Dill-4\\146\\simulOut");
+//		simul.areAtomsInCartesianCoordinates = false;
+//		simul.a = 1;
+//		simul.qMaxX = 10;
+//		simul.projections = projections;
+//		simul.qStep = 1. / 30.;
+//		simul.outputRoot = folderToWatch.getParentFile();
+//		simul.outputFolder = new File(simul.outputRoot + File.separator + "diffraction");
+//		WatchForNewFile wf = new WatchForNewFile(folderToWatch);
+//		wf.addObserver( simul);
 		
 		/** UNCOMMENT THIS BLOCK TO RUN SIMULATIONS WHICH WILL DUMP .XYZ FILES INTO A FOLDER */
 		

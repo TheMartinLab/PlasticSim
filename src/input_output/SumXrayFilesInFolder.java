@@ -130,12 +130,13 @@ public class SumXrayFilesInFolder {
 			
 	}
 	public static void main(String[] args) {
-		String root = "D:\\Documents referenced in lab notebooks\\Dill-4\\135\\diffraction";
-		root = "Z:\\Simulation\\Eric\\CBr4\\Dill-4\\145\\analyzed\\diffraction";
-		root = "D:\\Documents referenced in lab notebooks\\Dill-4\\146\\analyzed\\diffraction";
+		String fileRoot = "D:\\Documents referenced in lab notebooks\\Dill-4\\135\\diffraction";
+		fileRoot = "Z:\\Simulation\\Eric\\CBr4\\Dill-4\\145\\analyzed\\diffraction";
+		fileRoot = "D:\\Documents referenced in lab notebooks\\Dill-4\\146\\analyzed\\diffraction";
+		fileRoot = "D:\\Documents referenced in lab notebooks\\Dill-4\\149\\diffraction -- shifted up 0.4";
 		String[] projections = new String[] {"001", "011", "111" };
 		for(String proj : projections) {
-			File inFolder = new File(root + File.separator + proj);
+			File inFolder = new File(fileRoot + File.separator + proj);
 	//		inFolder = new File("D:\\$research\\current\\eclipse projects\\old_JNI_files\\diffraction\\old version of calculation with new version of control");
 			File outFolder = new File(inFolder.getParent() + File.separator + "summed");
 			outFolder.mkdirs();

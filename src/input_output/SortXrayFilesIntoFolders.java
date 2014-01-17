@@ -82,15 +82,15 @@ public class SortXrayFilesIntoFolders {
 	public static void main(String[] args) {
 		String fileRoot = "D:\\Documents referenced in lab notebooks\\Dill-4\\129\\diffraction";
 		fileRoot = "Z:\\Simulation\\Eric\\CBr4\\Dill-4\\146\\analyzed\\EDD_146-a (5 shell) diffraction";
-		fileRoot = "D:\\Documents referenced in lab notebooks\\Dill-4\\130\\diffraction";
+		fileRoot = "D:\\Documents referenced in lab notebooks\\Dill-4\\149\\diffraction -- shifted up 0.4";
 		
 		File root = new File(fileRoot);
 		SortXrayFilesIntoFolders sort = new SortXrayFilesIntoFolders();
 		String[] projections = new String[] {"001", "111", "011"};
 		
 //		sort.byTimeStep(root);
-		String startIndex = "a";
-		String endIndex = "g";
+		String startIndex = "t";
+		String endIndex = "u";
 		sort.byProjection(root, projections);
 		for(String proj : projections) {
 			File tmpRoot = new File(root + File.separator + proj);

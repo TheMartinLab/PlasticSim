@@ -139,12 +139,12 @@ public class DistortTetrahedra {
 			log.println(" Value: " + endDeltaE);
 		else
 			log.println();
-		log.print("\tEnding because of deltaE: " + isEndingBecauseOfSmallMovement);
+		log.print("\tEnding because minimum movement target achieved: " + isEndingBecauseOfSmallMovement);
 		if(isEndingBecauseOfSmallMovement)
 			log.println(" Value: " + smallEndMovement);
 		else
 			log.println();
-		log.print("\tEnding because of deltaE: " + isEndingBecauseOfLargeMovement);
+		log.print("\tEnding because maximum movement allowable exceeded: " + isEndingBecauseOfLargeMovement);
 		if(isEndingBecauseOfLargeMovement)
 			log.println(" Value: " + largeEndMovement);
 		else

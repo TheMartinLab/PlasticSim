@@ -62,13 +62,13 @@ public class RunDistortTetrahedra {
 		int Z1 = 35;
 		int Z2 = 35;
 		double Z1Z2_distance = 3.8;
-		double zeroPotentialDistance;
+		double zeroInterMolecPotentialDistance;
 		double wellDepth = 0.034891;
-		wellDepth *= 10;
+//		wellDepth *= 10;
 		
 			/* INIT POTENTIALS */
-		zeroPotentialDistance = Z1Z2_distance / Math.pow(2., (1./6.));
-		ljp_intermolec = new LennardJonesPotential(Z1, Z2, zeroPotentialDistance, wellDepth);
+		zeroInterMolecPotentialDistance = Z1Z2_distance / Math.pow(2., (1./6.));
+		ljp_intermolec = new LennardJonesPotential(Z1, Z2, zeroInterMolecPotentialDistance, wellDepth);
 		hookeCBrIntramolec = new HookePotential(6, 35, cBrDist, cBrSpringConstant);
 		hookeBrBrIntramolec = new HookePotential(35, 35, brBrIntramolecDist, brBrSpringConstant);
 		
@@ -77,28 +77,29 @@ public class RunDistortTetrahedra {
 		/* *************** */
 			/* TIME */
 		double timeStep = 0.01;
-		int stepsToCheckEnergy = 100;
+		int stepsToCheckEnergy = 5;
 			/* OUTPUT */
 		boolean outputXYZs = true;
 		boolean outputMovie = true;
-		int outputXYZsEveryThisManyTimeSteps = 100;
-		int outputMovieXYZsEveryThisManyTimeSteps = 100;
+		int outputXYZsEveryThisManyTimeSteps = 5;
+		int outputMovieXYZsEveryThisManyTimeSteps = 10;
 		File outputFolder = null;
 		double intermolecularMaxDist = 10;
 			/* END CONDITIONS */
 		boolean isEndingBecauseOfSmallMovement = false;
 		double smallEndMovement = .0001;
-		boolean isEndingBecauseOfLargeMovement = true;
+		boolean isEndingBecauseOfLargeMovement = false;
 		double largeEndMovement = .1;
 		boolean isEndingBecauseOfEnergy = false;
 		double endDeltaE = .005;
 		endDeltaE *= stepsToCheckEnergy;
 		boolean isEndingBecauseOfTimeSteps = true;
-		int endTimeStep = 5000;
+		int endTimeStep = 1000;
 		
 		boolean inEclipse = args.length == 0;
 		int numProcessorsToUse = 1;
-		File inputFolder = new File("D:\\Documents referenced in lab notebooks\\Dill-4\\89\\EDD_4-89d\\obj");
+		String input = "D:\\Documents referenced in lab notebooks\\Dill-4\\151\\b\\obj";
+		File inputFolder = new File(input);
 		if(!inEclipse) { 
 			inputFolder = new File("obj");
 			System.out.println("Looking for object folder in the .jar directory: " + inputFolder.getAbsolutePath());

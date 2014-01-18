@@ -1517,15 +1517,29 @@ public class Simulate {
 	 * <br>Second index are the twelve molecules around the central molecule.
 	 */
 	public Molecule[][] getSurrounding() {
-		Vector<Molecule[]> surrounding = new Vector<Molecule[]>();
-		for(Molecule[][] a : lattice3)
-			for(Molecule[] b : a)
-				for(Molecule c : b)
-					if(c != null) {
-						surrounding.add(getSurrounding(c).getSurroundingCBr4());
+		int numMolecules = 0;
+		for(int i = 0; i < lattice3.length; i++)
+			for(int j = 0; j < lattice3[i].length; j++)
+				for(int k = 0; k < lattice3[i][j].length; k++)
+					if(lattice3[i][j][k] != null) {
+						numMolecules++;
 					}
+//		System.out.println("numMolecules: " + numMolecules);
+
+		Molecule[][] surrounding = new Molecule[numMolecules][];
+		int idx = 0;
+		for(int i = 0; i < lattice3.length; i++) {
+			for(int j = 0; j < lattice3[i].length; j++)
+				for(int k = 0; k < lattice3[i][j].length; k++)
+					if(lattice3[i][j][k] != null) {
+						surrounding[idx++] = getSurrounding(lattice3[i][j][k]).getSurroundingCBr4();
+//						System.out.println(idx + " of " + numMolecules);
+					}
+//			if(idx%1000 == 0)
+//				System.out.println(idx + " of " + numMolecules);
+		}
 		
-		return surrounding.toArray(new Molecule[surrounding.size()][]);
+		return surrounding;
 	}
 	
 	/**
@@ -1556,7 +1570,7 @@ public class Simulate {
 		this.potentials = potentials;
 	}
 	public void addPotentialLookup(PotentialLookup potLook) { 
-		if(potentials == null)
+		if(potentials == null || potentials.get(0) == null)
 			potentials = new Vector<PotentialLookup>();
 		
 		potentials.add(potLook); 

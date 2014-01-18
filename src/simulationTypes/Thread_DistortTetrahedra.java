@@ -55,6 +55,7 @@ public class Thread_DistortTetrahedra extends Thread {
 		}
 		Molecule[] mols = simul.to1dArray();
 		Molecule[][] surrounding = simul.getSurrounding();
+		log("Surrounding molecule matrix constructed.", "\t");
 		
 		/* TIME PARAMETERS */
 		double time = 0;
@@ -84,7 +85,7 @@ public class Thread_DistortTetrahedra extends Thread {
 		}
 		do {
 			timeStep++;
-			log("Time step # " + timeStep + " = " + time, "");
+			log("Time step # " + timeStep + " = " + Math.rint(time/distort.getTimeStep()) * distort.getTimeStep(), "");
 			/* DO ENERGY MINIMIZATION STUFF */
 			zeroForces(forces);
 			calcForcesOnMolecules(mols, surrounding, forces);
@@ -93,13 +94,17 @@ public class Thread_DistortTetrahedra extends Thread {
 
 			/* OUTPUT XYZs */
 			if(distort.isOutputtingXYZs() && 
-					timeStep % distort.getOutputXYZsEveryThisManyTimeSteps() == 0)
+					timeStep % distort.getOutputXYZsEveryThisManyTimeSteps() == 0) {
+				log("Outputting XYZ", "\t");
 				outputXYZ(mols, time);
+			}
 			
 			/* OUTPUT MOVIE */
 			if(distort.isOutputtingMovie() && 
-					timeStep % distort.getOutputMovieXYZsEveryThisManyTimeSteps() == 0)
+					timeStep % distort.getOutputMovieXYZsEveryThisManyTimeSteps() == 0) {
+				log("Outputting Movie XYZ", "\t");
 				outputMovie(mols, mps_movie);
+			}
 			
 			/* CHECK LATTICE ENERGY */
 			if(timeStep % checkEnergyEvery == 0) {
@@ -110,10 +115,9 @@ public class Thread_DistortTetrahedra extends Thread {
 				deltaE = curLatticeEnergy - prevLatticeEnergy;
 				hasCheckedEnergy = true;
 			}
-			if(!hasCheckedEnergy)
-				continueLoop = true;
-			else
-				continueLoop = !endConditionsAreMet(deltaE, prevMaxMoved);
+			continueLoop = !endConditionsAreMet(deltaE, prevMaxMoved);
+//			else
+//				continueLoop = !endConditionsAreMet(deltaE, prevMaxMoved);
 			
 		} while(continueLoop);
 		
@@ -147,7 +151,7 @@ public class Thread_DistortTetrahedra extends Thread {
 		if(!end && distort.isEndingBecauseOfTimeSteps()) {
 			end = timeStep > distort.getEndTimeStep();
 			if(end)	
-				log("END CONDITION: ENDING BECAUSE + " + distort.getEndTimeStep() + " TIME STEPS HAVE OCCURED", "");
+				log("END CONDITION: ENDING BECAUSE > " + distort.getEndTimeStep() + " TIME STEPS HAVE OCCURED", "");
 		}
 		
 		return end;
@@ -199,6 +203,8 @@ public class Thread_DistortTetrahedra extends Thread {
 				mass = JAtomTools.getMass(atoms[a].getZ());
 				forceMagnitude = 0.5 * mass * timeStep * timeStep;
 				force = JVector.multiply(force, forceMagnitude);
+				if(!distort.isEndingBecauseOfLargeMovement() && force.length() > distort.getLargeEndMovement())
+					force = JVector.multiply(force.unit(), distort.getLargeEndMovement());
 				if(maxMovement.length() < force.length())
 					maxMovement = force;
 				atoms[a].getPosition().add_inPlace(force);

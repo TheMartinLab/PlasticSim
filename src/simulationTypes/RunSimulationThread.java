@@ -964,16 +964,16 @@ public class RunSimulationThread implements Observer {
 		simul.zShift = 2;
 		double maxShift = 4;
 		double shiftStep = 2*simul.qStep;
-		double startShift = 1.4;
+		double startShift = 2.8;
 		
 		int numToCalculate = (int) Math.rint((maxShift - startShift) / shiftStep);
+		
 		inputFolder = new File("D:\\Documents referenced in lab notebooks\\Dill-4\\149\\b");
-		inputFolder = new File("b");
 		inputFolders.add(inputFolder);
-		System.out.println(inputFolder);
-		System.out.println("The previous line is a folder: " + inputFolder.isDirectory());
 		for(int idx = 0; idx < numToCalculate; idx++) {
-			double shift = idx * shiftStep + startShift; 
+			double shift = idx * shiftStep + startShift;
+			if(shift > 0 && shift < 1.4)
+				continue;
 			shift = Math.rint(shift*100)/100.;
 			simul.zShift = shift;
 			int step = 1;

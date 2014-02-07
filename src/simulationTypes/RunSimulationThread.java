@@ -962,9 +962,9 @@ public class RunSimulationThread implements Observer {
 		simul.qStep = 1. / 10.;
 		simul.a = 	1;
 		simul.zShift = 2;
-		double maxShift = 4;
+		double maxShift = 2.7;
 		double shiftStep = 2*simul.qStep;
-		double startShift = 2.8;
+		double startShift = 2.6;
 		
 		int numToCalculate = (int) Math.rint((maxShift - startShift) / shiftStep);
 		
@@ -976,6 +976,7 @@ public class RunSimulationThread implements Observer {
 				continue;
 			shift = Math.rint(shift*100)/100.;
 			simul.zShift = shift;
+			
 			int step = 1;
 			simul.diffractionOutputFolder = new File(inputFolder.getParentFile() + File.separator + "diffraction -- shifted up " + shift);
 			simul.outputFolder = simul.diffractionOutputFolder;

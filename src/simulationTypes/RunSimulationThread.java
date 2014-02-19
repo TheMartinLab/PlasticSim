@@ -962,9 +962,9 @@ public class RunSimulationThread implements Observer {
 		simul.qStep = 1. / 10.;
 		simul.a = 	1;
 		simul.zShift = 2;
-		double maxShift = 2.7;
+		double maxShift = 10;
 		double shiftStep = 2*simul.qStep;
-		double startShift = 2.6;
+		double startShift = 4.0;
 		
 		int numToCalculate = (int) Math.rint((maxShift - startShift) / shiftStep);
 		
@@ -972,8 +972,6 @@ public class RunSimulationThread implements Observer {
 		inputFolders.add(inputFolder);
 		for(int idx = 0; idx < numToCalculate; idx++) {
 			double shift = idx * shiftStep + startShift;
-			if(shift > 0 && shift < 1.4)
-				continue;
 			shift = Math.rint(shift*100)/100.;
 			simul.zShift = shift;
 			

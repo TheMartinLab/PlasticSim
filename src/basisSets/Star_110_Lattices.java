@@ -37,6 +37,7 @@ public class Star_110_Lattices {
 	protected LennardJonesPotential ljp;
 	protected ComplexScatteringFactor csf;
 	protected IdealTetrahedron[] fcc;
+	private double maxAngle = 15;
 	static JVector[] firstShell = JVector.firstShell;
 	private File outputDirectory;
 	public void readFile2(File aFile) {
@@ -266,7 +267,6 @@ public class Star_110_Lattices {
 				stars[i][j] = basis[i][j];
 			}
 		}
-		double maxAngle = 15;
 		double maxDist = 8;
 		for(int i = 0; i < stars.length; i++) {
 			JVector centerPos = basis[i][0].getCenter().getPosition();
@@ -277,16 +277,16 @@ public class Star_110_Lattices {
 				angleIdx = distIdx;
 				if(stars[i][angleIdx] == null || stars[i][distIdx] == null)
 					continue;
-				JVector firstShellPos_angle = stars[i][angleIdx].getCenter().getPosition();
+				JVector firstShellPos = stars[i][angleIdx].getCenter().getPosition();
 				JVector firstShellPos_dist = stars[i][distIdx].getCenter().getPosition();
-				JVector v110_firstShell = JVector.subtract(firstShellPos_angle, centerPos);
+				JVector v110_firstShell = JVector.subtract(firstShellPos, centerPos);
 				
 				// loop through all molecules in the expanded cell
 				for(int k = 0; k < monoclinicCell.length; k++) {
 					// calculate angle between the vector from the first shell molecule to monoclinicCell molecule 
 					// and vector from center to first shell molecule
 					JVector molPos = monoclinicCell[k].getCenter().getPosition();
-					JVector v110_surrounding = JVector.subtract(molPos, firstShellPos_angle);
+					JVector v110_surrounding = JVector.subtract(molPos, firstShellPos);
 					double angle = JVector.angle(v110_firstShell, v110_surrounding);
 					
 					// calculate distance between molecule in the expanded cell and the target molecule in the first shell

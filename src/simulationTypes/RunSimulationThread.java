@@ -264,9 +264,9 @@ public class RunSimulationThread implements Observer {
 				lattice = l.makeSecondShellLatticeRandomly(1);
 				writeToLog("\t\t made monoclinic second shell FCC Lattice with " + numCycles);
 				break;
-			case MONOCLINIC_STAR_BUILD:
+			case MONOCLINIC_3_STAR_BUILD:
 				try {
-					l.readBoxes(new File("110_stars.lattice"), Lattice.STARS);
+					l.readBoxes(new File("110_stars-3shells.lattice"), Lattice.STARS);
 				} catch (FileNotFoundException e1) {
 					e1.printStackTrace();
 				}
@@ -903,13 +903,13 @@ public class RunSimulationThread implements Observer {
 	}
 	public static void main(String[] args) {
 		String drive = "";
-		drive = "Z:\\";
+//		drive = "Z:\\";
 		String root = drive + "Simulation" + File.separator + "Eric" + File.separator + "CBr4";
 //		String root = "D:\\Documents referenced in lab notebooks\\";
 		String user = "Dill";
-		int pageNumber = 149;
-		int notebookNumber = 4;
-		String index = "b";
+		int pageNumber = 3;
+		int notebookNumber = 15;
+		String index = "";
 		
 		File outputFolder = new File(root + File.separator + user + "-" + notebookNumber + File.separator + pageNumber);
 		outputFolder.mkdirs();
@@ -929,13 +929,13 @@ public class RunSimulationThread implements Observer {
 		RunSimulationThread simul = new RunSimulationThread(outputFolder, inputFolder);
 
 		int startModifyIdx = 0;
-		int finishModifyIdx = 100;
-		simul.initLattice = InitialLatticeTypes.MONOCLINIC_STAR_BUILD;
+		int finishModifyIdx = 50;
+		simul.initLattice = InitialLatticeTypes.MONOCLINIC_3_STAR_BUILD;
 		simul.numLatticesToMake = finishModifyIdx - startModifyIdx;
 		simul.pageNumber = pageNumber;
 		simul.notebookNumber = notebookNumber;
-		simul.numThreadsToUse = 3;
-		simul.numUnitCellsPerAxis = 10;
+		simul.numThreadsToUse = 1;
+		simul.numUnitCellsPerAxis = 30;
 		simul.maximumTranslationalMotionPerMove = .1;
 		
 		simul.elemTypes = new int[] {6, 35};
@@ -945,9 +945,9 @@ public class RunSimulationThread implements Observer {
 		Vector<File> inputFolders = new Vector<File>();
 //		inputFolders.add(inputFolder);
 		Vector<Projections> projections = new Vector<Projections>();
-		projections.add(Projections._2d_001);
+//		projections.add(Projections._2d_001);
 		projections.add(Projections._2d_011);
-		projections.add(Projections._2d_111);
+//		projections.add(Projections._2d_111);
 //		projections.add(Projections._2d_211);
 //		projections.add(Projections._2d_210);
 		simul.outputAllTo = new File(root + File.separator + user + "-" + notebookNumber + File.separator + pageNumber + File.separator + "simulOut");
@@ -955,43 +955,44 @@ public class RunSimulationThread implements Observer {
 //		simul.outputAllTo = new File("Z:\\Simulation\\Eric\\CBr4\\Diffraction patterns will be automatically calculated in this folder");
 
 		/** UNCOMMENT THIS BLOCK TO CALCULATE DIFFRACTION PATTERNS IN A SPECIFIC SET OF FOLDERS */
-		projections.add(Projections._2d_001);
+//		projections.add(Projections._2d_001);
 		
-		simul.projections = projections;
-		simul.qMaxX = 10;
-		simul.qStep = 1. / 10.;
-		simul.a = 	1;
-		simul.zShift = 2;
-		double maxShift = 10;
-		double shiftStep = 2*simul.qStep;
-		double startShift = 4.0;
-		
-		int numToCalculate = (int) Math.rint((maxShift - startShift) / shiftStep);
-		
-		inputFolder = new File("D:\\Documents referenced in lab notebooks\\Dill-4\\149\\b");
-		inputFolders.add(inputFolder);
-		for(int idx = 0; idx < numToCalculate; idx++) {
-			double shift = idx * shiftStep + startShift;
-			shift = Math.rint(shift*100)/100.;
-			simul.zShift = shift;
-			
-			int step = 1;
-			simul.diffractionOutputFolder = new File(inputFolder.getParentFile() + File.separator + "diffraction -- shifted up " + shift);
-			simul.outputFolder = simul.diffractionOutputFolder;
-			
-			simul.diffractionOutputFolder.mkdirs();
-			simul.outputFolder.mkdirs();
-			startModifyIdx = 0;
-			for(File inFolder : inputFolders) {
-				simul.inputFolder = inFolder;
-				finishModifyIdx = new File(inFolder + File.separator + "xyz").listFiles().length;
-				for(int j = startModifyIdx; j < finishModifyIdx; j+= step) {
-					simul.startModifyIdx = j;
-					simul.finishModifyIdx = j+step;
-					runDiffractionCalc(simul, SimulationToRun.CALC_DIFFRACTION_XYZ);
-				}
-			}
-		}
+//		simul.projections = projections;
+//		simul.qMaxX = 10;
+//		simul.qStep = 1. / 10.;
+//		simul.a = 	1;
+//		simul.zShift = 2;
+//		double shiftStep = .2;
+//		double startShift = 4.8;
+//		double maxShift = 6;
+//		
+//		int numToCalculate = (int) Math.rint((maxShift - startShift) / shiftStep);
+//		
+//		inputFolder = new File("D:\\Documents referenced in lab notebooks\\Dill-4\\132\\simulOut");
+//		inputFolders.add(inputFolder);
+//		for(int idx = 0; idx < numToCalculate; idx++) {
+//			double shift = idx * shiftStep + startShift;
+//			
+//			shift = Math.rint(shift*100)/100.;
+//			simul.zShift = shift;
+//			
+//			int step = 1;
+//			simul.diffractionOutputFolder = new File(inputFolder.getParentFile() + File.separator + "diffraction -- shifted up " + shift);
+//			simul.outputFolder = simul.diffractionOutputFolder;
+//			
+//			simul.diffractionOutputFolder.mkdirs();
+//			simul.outputFolder.mkdirs();
+//			startModifyIdx = 0;
+//			for(File inFolder : inputFolders) {
+//				simul.inputFolder = inFolder;
+//				finishModifyIdx = new File(inFolder + File.separator + "xyz").listFiles().length;
+//				for(int j = startModifyIdx; j < finishModifyIdx; j+= step) {
+//					simul.startModifyIdx = j;
+//					simul.finishModifyIdx = j+step;
+//					runDiffractionCalc(simul, SimulationToRun.CALC_DIFFRACTION_XYZ);
+//				}
+//			}
+//		}
 
 		/** UNCOMMENT THIS BLOCK TO CALCULATE DIFFRACTION PATTERNS AS OUTPUT FILES ARE DUMPED INTO A FOLDER */
 		
@@ -1009,30 +1010,30 @@ public class RunSimulationThread implements Observer {
 		
 		/** UNCOMMENT THIS BLOCK TO RUN SIMULATIONS WHICH WILL DUMP .XYZ FILES INTO A FOLDER */
 		
-//		File input = new File(drive + File.separator + "Simulation" + File.separator + "Eric" + File.separator + "CBr4" + File.separator + "Dill-4" + File.separator + "95" + File.separator + "EDD_4-95b");
+//		File input = new File(drive + File.separator + "Simulation" + File.separator + "Eric" + File.separator + "CBr4" + File.separator + "Dill-15" + File.separator + "3" + File.separator + "EDD_4-95b");
 //		inputFolders.add(input);
 		
-//		int monteCarloOffset = 0;
-//		for(int i = 0; i < walkLengths.length+1; i++) {
-//			simul.startModifyIdx = startModifyIdx;
-//			simul.finishModifyIdx = finishModifyIdx;
-//			if(i == 0) {
-//				inputFolders.add(makeInitialLattices(simul));
-//			} else {
-//				if(monteCarloFirst) {
-//					simul.inputFolder = inputFolders.get(i-1);
-//					simul.numStepsPerWalk = walkLengths[i-1];
-//					inputFolders.add(runMonteCarloOrientational(simul));
-//					monteCarloFirst = false;
-//					monteCarloOffset = 1;
-//					i--;
-//				} else {
-//					simul.inputFolder = inputFolders.get(i-1 + monteCarloOffset);
-//					simul.numStepsPerWalk = walkLengths[i-1];
-//					inputFolders.add(runRandomWalk(simul));
-//				}
-//			}
-//		}
+		int monteCarloOffset = 0;
+		for(int i = 0; i < walkLengths.length+1; i++) {
+			simul.startModifyIdx = startModifyIdx;
+			simul.finishModifyIdx = finishModifyIdx;
+			if(i == 0) {
+				inputFolders.add(makeInitialLattices(simul));
+			} else {
+				if(monteCarloFirst) {
+					simul.inputFolder = inputFolders.get(i-1);
+					simul.numStepsPerWalk = walkLengths[i-1];
+					inputFolders.add(runMonteCarloOrientational(simul));
+					monteCarloFirst = false;
+					monteCarloOffset = 1;
+					i--;
+				} else {
+					simul.inputFolder = inputFolders.get(i-1 + monteCarloOffset);
+					simul.numStepsPerWalk = walkLengths[i-1];
+					inputFolders.add(runRandomWalk(simul));
+				}
+			}
+		}
 		
 		/** **************************** */
 		

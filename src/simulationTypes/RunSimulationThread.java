@@ -266,7 +266,7 @@ public class RunSimulationThread implements Observer {
 				break;
 			case MONOCLINIC_3_STAR_BUILD:
 				try {
-					l.readBoxes(new File("110_stars-3shells.lattice"), Lattice.STARS);
+					l.readBoxes(new File("output\\110_stars-3shells.lattice"), Lattice.STARS);
 				} catch (FileNotFoundException e1) {
 					e1.printStackTrace();
 				}
@@ -934,7 +934,7 @@ public class RunSimulationThread implements Observer {
 		simul.numLatticesToMake = finishModifyIdx - startModifyIdx;
 		simul.pageNumber = pageNumber;
 		simul.notebookNumber = notebookNumber;
-		simul.numThreadsToUse = 1;
+		simul.numThreadsToUse = 3;
 		simul.numUnitCellsPerAxis = 30;
 		simul.maximumTranslationalMotionPerMove = .1;
 		
@@ -1010,11 +1010,11 @@ public class RunSimulationThread implements Observer {
 		
 		/** UNCOMMENT THIS BLOCK TO RUN SIMULATIONS WHICH WILL DUMP .XYZ FILES INTO A FOLDER */
 		
-//		File input = new File(drive + File.separator + "Simulation" + File.separator + "Eric" + File.separator + "CBr4" + File.separator + "Dill-15" + File.separator + "3" + File.separator + "EDD_4-95b");
-//		inputFolders.add(input);
+		File input = new File(drive + File.separator + "Simulation" + File.separator + "Eric" + File.separator + "CBr4" + File.separator + "Dill-15" + File.separator + "3" + File.separator + "EDD_15-3a");
+		inputFolders.add(input);
 		
 		int monteCarloOffset = 0;
-		for(int i = 0; i < walkLengths.length+1; i++) {
+		for(int i = 1; i < walkLengths.length+1; i++) {
 			simul.startModifyIdx = startModifyIdx;
 			simul.finishModifyIdx = finishModifyIdx;
 			if(i == 0) {

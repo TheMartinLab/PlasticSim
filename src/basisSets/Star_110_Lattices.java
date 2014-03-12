@@ -27,7 +27,7 @@ import defaultPackage.TwoNodeVector;
 
 public class Star_110_Lattices {
 
-	protected int aUnits, numShells = 1, numToExpandTo = 4, moleculesPerShell = 12;
+protected int aUnits, numShells = 3, numToExpandTo = 3, moleculesPerShell = 12;
 	protected double aSmall, aBig, aPlastic;
 	protected JAtom[] carbons, bromines, carbons_32;
 	protected IdealTetrahedron[] monoclinicCell, six=Lattice.getSix4barOrientations();
@@ -37,9 +37,13 @@ public class Star_110_Lattices {
 	protected LennardJonesPotential ljp;
 	protected ComplexScatteringFactor csf;
 	protected IdealTetrahedron[] fcc;
-	private double maxAngle = 15;
 	static JVector[] firstShell = JVector.firstShell;
 	private File outputDirectory;
+	private double a = 21.43;
+	private double b = 12.12;
+	private double c = 21.2;
+	private double beta = 110.88;
+	
 	public void readFile2(File aFile) {
 		MyFileInputStream mfis = new MyFileInputStream(aFile);
 		
@@ -81,9 +85,6 @@ public class Star_110_Lattices {
 		//double a = 21.43+ Math.sin(20.88*Math.PI/180)*21.02;
 		//double b = 12.12;
 		//double c = 21.02*(Math.cos(20.88*Math.PI/180));
-		double a = 21.43;
-		double b = 12.12;
-		double c = 21.2;
 		// reset the file input stream and the scanner
 		fis = new FileInputStream(aFile);
 		s = new Scanner(fis);
@@ -121,24 +122,32 @@ public class Star_110_Lattices {
 					for(int k = -numToExpandTo; k <= numToExpandTo; k++)
 					{
 						pos = JVector.add(new JVector(x, y, z), new JVector(i, j, k));
+						
+						if(Z == 50 && (i != 0 || j != 0 || k != 0))
+							continue;
+
 						// rotate the a axis
-						double xNew = JVector.dot(pos, new JVector(Math.cos(20.88*Math.PI/180), 0, 0)) ;
-						double yNew = JVector.dot(pos, new JVector(0, 1, 0)) ;
-						double zNew = JVector.dot(pos, new JVector(-Math.sin(20.88*Math.PI/180), 0, 1));
+						double xNew = JVector.dot(pos, new JVector(Math.cos((beta - 90)*Math.PI/180), 0, 0));
+						double yNew = JVector.dot(pos, new JVector(0, 1, 0));
+						double zNew = JVector.dot(pos, new JVector(-Math.sin((beta - 90)*Math.PI/180), 0, 1));
 						// convert to cartesian coordinates
 						xNew *= a;
 						yNew *= b;
 						zNew *= c;
 						
-						if(Z == 50 && (i != 0 || j != 0 || k != 0))
-							continue;
-						
+//						System.out.println("Original Position: " + pos.toTabString());
+//						pos = monoToCartesian(pos);
+//						System.out.println("Converted to cartesian: " + pos.toTabString());
+//						pos = cartesianToMono(pos);
+//						System.out.println("Converted back to mono: " + pos.toTabString());
+//						positions[index] = monoToCartesian(pos);
 						positions[index] = new JVector(xNew, yNew, zNew);
 						
 						if(i == 0 && j == 0 && k == 0 && Z == 6)
 						{
 							//carbons_32[c_32] = new JAtom(c_32, positions[index], csf.getAbbreviation(c_32+1));
-							carbons_32[c_32] = new JAtom(6, positions[index]);
+							JVector c_pos = positions[index];
+							carbons_32[c_32] = new JAtom(6, c_pos);
 							c_32++;
 						}
 						index++;
@@ -184,10 +193,40 @@ public class Star_110_Lattices {
 		c = 21.02;
 	}
 	
+	private void expandUnitCell() {
+		
+	}
+	
+	private JVector monoToCartesian(JVector pos) {
+		// rotate the a axis
+		double x = JVector.dot(pos, new JVector(Math.cos((beta - 90)*Math.PI/180), 0, 0));
+		double y = JVector.dot(pos, new JVector(0, 1, 0));
+		double z = JVector.dot(pos, new JVector(-Math.sin((beta - 90)*Math.PI/180), 0, 1));
+		// convert to cartesian coordinates
+		x *= a;
+		y *= b;
+		z *= c;
+		
+		return new JVector(x, y, z);
+	}
+	
+	private JVector cartesianToMono(JVector pos) {
+		// convert to monoclinic coordinates
+		pos.i = pos.i / a;
+		pos.j = pos.j / b;
+		pos.k = pos.k / c;
+		
+		// rotate the a axis
+		double x = JVector.dot(pos, new JVector(Math.cos(-(beta - 90)*Math.PI/180), 0, 0));
+		double y = JVector.dot(pos, new JVector(0, 1, 0));
+		double z = JVector.dot(pos, new JVector(-Math.sin(-(beta - 90)*Math.PI/180), 0, 1));
+		
+		return new JVector(x, y, z);
+	}
 	public void makeTetrahedra()
 	{
 		Vector<IdealTetrahedron> tempMonoclinicCell = new Vector<IdealTetrahedron>();
-		
+		IdealizeTetrahedron idealizer = new IdealizeTetrahedron();
 		// loop through the carbons
 		for(int i = 0; i < carbons.length; i++)
 		{
@@ -217,9 +256,14 @@ public class Star_110_Lattices {
 			}
 			// make a tetrahedron from the carbon and bromine positions
 			IdealTetrahedron temp = new IdealTetrahedron(carbons[i], ligands);
-			
 			if(ligandPos < 4)
 				continue;
+			// idealize the molecules 
+			idealizer.setTarget(temp);
+			temp = idealizer.idealize();
+			if((i+1) % 100 == 0)
+				System.out.println("idealized " + (i+1) + " of " + carbons.length);
+			
 			// calculate the new position for the molecule
 			JVector newPos = JVector.multiply(temp.getCenter().getPosition(), aSmall/17.4);
 			// subtract the old position from the new position
@@ -231,7 +275,6 @@ public class Star_110_Lattices {
 		monoclinicCell = new IdealTetrahedron[tempMonoclinicCell.size()];
 		monoclinicCell = tempMonoclinicCell.toArray(monoclinicCell);
 	}
-
 	public void makeFirstShells()
 	{
 		basis = new IdealTetrahedron[carbons_32.length][1+12];
@@ -239,13 +282,15 @@ public class Star_110_Lattices {
 		for(int i = 0; i < carbons_32.length; i++)
 		{
 			JVector c_pos = carbons_32[i].getPosition();
-			
+			JVector surroundingPos;
 			DoubleLinkedListVector c_13 = new DoubleLinkedListVector(13);
 			// loop through the rest of the tetrahedron
 			for(int j = 0; j < monoclinicCell.length; j++)
 			{
 				if(monoclinicCell[j] == null) continue;
-				double length = JVector.subtract(c_pos, monoclinicCell[j].getCenter().getPosition()).length();
+				surroundingPos = monoclinicCell[j].getCenter().getPosition();
+				JVector vec = JVector.subtract(c_pos, surroundingPos);
+				double length = vec.length();
 				c_13.insert(new TwoNodeVector(length, j, null, null));
 			}
 			// set the first shells as the twelve closest molecules
@@ -267,6 +312,7 @@ public class Star_110_Lattices {
 				stars[i][j] = basis[i][j];
 			}
 		}
+		double maxAngle = 15;
 		double maxDist = 8;
 		for(int i = 0; i < stars.length; i++) {
 			JVector centerPos = basis[i][0].getCenter().getPosition();
@@ -277,23 +323,46 @@ public class Star_110_Lattices {
 				angleIdx = distIdx;
 				if(stars[i][angleIdx] == null || stars[i][distIdx] == null)
 					continue;
-				JVector firstShellPos = stars[i][angleIdx].getCenter().getPosition();
+				JVector firstShellPos_angle = stars[i][angleIdx].getCenter().getPosition();
 				JVector firstShellPos_dist = stars[i][distIdx].getCenter().getPosition();
-				JVector v110_firstShell = JVector.subtract(firstShellPos, centerPos);
+				JVector v110_firstShell = JVector.subtract(firstShellPos_angle, centerPos);
 				
 				// loop through all molecules in the expanded cell
+				double minAngle = 100;
+				double minDist = 10;
 				for(int k = 0; k < monoclinicCell.length; k++) {
 					// calculate angle between the vector from the first shell molecule to monoclinicCell molecule 
 					// and vector from center to first shell molecule
 					JVector molPos = monoclinicCell[k].getCenter().getPosition();
-					JVector v110_surrounding = JVector.subtract(molPos, firstShellPos);
+					JVector v110_surrounding = JVector.subtract(molPos, firstShellPos_angle);
 					double angle = JVector.angle(v110_firstShell, v110_surrounding);
-					
+					if(angle < minAngle)
+						minAngle = angle;
 					// calculate distance between molecule in the expanded cell and the target molecule in the first shell
 					double dist = JVector.distance(firstShellPos_dist, monoclinicCell[k].getCenter().getPosition());
+					if(dist < minDist)
+						minDist = dist;
 					if(angle < maxAngle && dist < maxDist)
 						dllAngle.insert(new TwoNodeCBr4(monoclinicCell[k], angle));
 				}
+				// loop through all molecules in the original cell
+				for(int k = 0; k < basis.length; k++) {
+					// calculate angle between the vector from the first shell molecule to monoclinicCell molecule 
+					// and vector from center to first shell molecule
+					JVector molPos = basis[k][0].getCenter().getPosition();
+					JVector v110_surrounding = JVector.subtract(molPos, firstShellPos_angle);
+					double angle = JVector.angle(v110_firstShell, v110_surrounding);
+					if(angle < minAngle)
+						minAngle = angle;
+					// calculate distance between molecule in the expanded cell and the target molecule in the first shell
+					double dist = JVector.distance(firstShellPos_dist, basis[k][0].getCenter().getPosition());
+					if(dist < minDist)
+						minDist = dist;
+					if(angle < maxAngle && dist < maxDist)
+						dllAngle.insert(new TwoNodeCBr4(basis[k][0], angle));
+					
+				}
+//				System.out.println("Min angle: " + minAngle + "\tMin distance: " + minDist);
 				
 				DoubleLinkedListCBr4 dllDist = new DoubleLinkedListCBr4(2*numToExpandTo);
 				while(dllAngle.hasMore()) {
@@ -594,21 +663,52 @@ public class Star_110_Lattices {
 		}
 	}
 	public void sort(IdealTetrahedron[][] lattice) {
-		DoubleLinkedListCBr4 dll = new DoubleLinkedListCBr4(5);
+//		DoubleLinkedListCBr4 dll = new DoubleLinkedListCBr4(5);
 		sorted = new IdealTetrahedron[lattice.length][lattice[0].length];
-		double dist;
 		for(int i = 0; i < lattice.length; i++) {
-			for(int k = 0; k < firstShell.length; k++) {
-				dll.clear();
-				for(int j = 0; j < lattice[0].length; j++) {
-					if(lattice[i][j] == null)
-						continue;
-					dist = JVector.subtract(lattice[i][j].getCenter().getPosition(), JVector.multiply(firstShell[k], 8.82/2)).length();
-					dist = Math.abs(dist);
-					dll.insert(new TwoNodeCBr4(lattice[i][j], dist, null, null));
+			sorted[i][0] = lattice[i][0];
+			// get the molecules that are part of the star construct
+			for(int j = 1; j < lattice[i].length; j++) {
+				if(lattice[i][j] == null)
+					continue;
+				
+				int minIdx = 0;
+				double minAngle = 100;
+				// compare with the first shell angles
+				for(int k = 1; k < firstShell.length; k++) {
+					double angle = JVector.angle(lattice[i][j].getCenter().getPosition(), firstShell[k]);
+					if(angle < minAngle) {
+						minAngle = angle;
+						minIdx = k;
+					}
 				}
-				sorted[i][k] = (IdealTetrahedron) dll.removeHead().getValue().clone();
+				// decide which angle fits best
+				
+				// put the molecule at that position
+				int currentShell = (j-1) / (firstShell.length-1);
+				int arrayOffset = currentShell * (firstShell.length-1) + 1;
+				sorted[i][arrayOffset+minIdx-1] = lattice[i][j];
 			}
+//			for(int k = 1; k < (firstShell.length-1) * numShells; k++) {
+//				int firstShellIdx = k % (firstShell.length-1)+1;
+//				int shellIdx = k / (firstShell.length-1);
+//				for(int j = shellIdx; j < shellIdx + firstShell.length-1; j++) {
+//					if(lattice[i][j] == null)
+//						continue;
+//					double angle = JVector.angle(lattice[i][j].getCenter().getPosition(), firstShell[firstShellIdx]);
+//					dll.insert(new TwoNodeCBr4(lattice[i][j], angle, j, null, null));
+//				}
+//				IdealTetrahedron mol = null;
+//				if(dll.hasMore()) {
+//					TwoNodeCBr4 node = dll.removeHead();
+//					if(node.getKey1() < 30) {
+//						mol = (IdealTetrahedron) node.getValue().clone();
+//						int key2 = node.getKey2();
+//						lattice[i][key2] = null;
+//					}
+//				}
+//				sorted[i][k] = mol;
+//			}
 		}
 	}
 	public void get_7_rings()
@@ -804,7 +904,7 @@ public class Star_110_Lattices {
 		Star_110_Lattices m = new Star_110_Lattices();
 		
 		int numToExpand = 4;
-		File inFile = new File("monoclinic crystallographic coords - 2.txt");
+		File inFile = new File("output\\monoclinic crystallographic coords - 2.txt");
 		// deltaH_vap = 
 		m.ljp = new LennardJonesPotential(35, 35, 3.3854, 0.029809248);
 		

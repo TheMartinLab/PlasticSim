@@ -1,6 +1,8 @@
 PlasticSim
 ==========
 
+[![DOI](https://zenodo.org/badge/6651/TheMartinLab/CrystalSim.png)](http://dx.doi.org/10.5281/zenodo.12265)
+
 Simulation of the plastic phase of Carbon Tetrabromide and calculate specific reciprocal space slices (2D diffraction images)
 
 Currently requires https://github.com/ericdill/GlobalPackages

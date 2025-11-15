@@ -1,7 +1,6 @@
 name: plasticsim-python
 channels:
   - conda-forge
-  - defaults
 dependencies:
   - python>=3.8
   - jupyter>=1.0.0
@@ -15,4 +14,3 @@ dependencies:
   - pip:
     # Add any pip-only packages here if needed
     # - some-pip-only-package
-
